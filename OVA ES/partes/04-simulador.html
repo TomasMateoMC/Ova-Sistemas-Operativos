@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parte 4 · Simulador de E/S</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="sim-page">
+  <div class="wrap">
+    <nav>
+      <div class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="01-introduccion.html">Parte 1</a>
+        <a href="02-principios-hardware.html">Parte 2</a>
+        <a href="03-principios-software.html">Parte 3</a>
+        <a href="04-simulador.html">Parte 4</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">Parte 4</div>
+    <h1>Simulador: leer un bloque de disco</h1>
+    <p>Compara cómo se lee un bloque con y sin DMA. Observa el buffer del controlador, la memoria principal y cuánto tiempo de CPU se ocupa.</p>
+
+    <div class="sim">
+      <div class="ctl">
+        <label>Modo <select id="mode"><option value="nodma">Sin DMA</option><option value="dma">Con DMA</option></select></label>
+        <label>Bytes del bloque <select id="n"><option>4</option><option selected>8</option><option>12</option><option>16</option></select></label>
+        <button id="step" class="main">Paso</button>
+        <button id="run">Ejecutar</button>
+        <button id="reset">Reiniciar</button>
+      </div>
+      <div class="row"><b>Buffer del controlador</b><div class="cells" id="buf"></div></div>
+      <div class="row"><b>Memoria principal (destino)</b><div class="cells" id="mem"></div></div>
+      <div class="row regs" id="regs"></div>
+      <div class="row"><b>CPU ocupada: <span id="cpuTxt">0</span> ciclos</b><div class="bar"><i id="cpuBar"></i></div></div>
+      <div id="msg" aria-live="polite">Pulsa «Paso» o «Ejecutar» para comenzar.</div>
+      <div id="res"></div>
+    </div>
+
+    <footer>La diferencia clave es que con DMA la CPU queda libre durante la transferencia, mientras que sin DMA debe copiar cada byte.</footer>
+  </div>
+
+  <script>
+    var $ = function(id){ return document.getElementById(id); };
+    var steps = [], idx = 0, timer = null;
+
+    function build() {
+      stop();
+      var n = Number($('n').value), dma = $('mode').value === 'dma';
+      steps = [];
+      var s = { buf: 0, mem: 0, cnt: n, addr: 0, cpu: 0, msg: 'Estado inicial. La CPU aún no ha pedido nada.' };
+      function push(o){ s = Object.assign({}, s, o); steps.push(s); }
+      steps.push(s);
+
+      if (dma) {
+        push({ cpu: s.cpu + 1, msg: 'La CPU escribe en el controlador la dirección del bloque en disco (1 ciclo).' });
+        push({ cpu: s.cpu + 1, msg: 'La CPU escribe la dirección de memoria donde debe ir el bloque (1 ciclo más).' });
+        push({ cpu: s.cpu + 1, msg: 'La CPU escribe el número de bytes por transferir (' + n + '). Con esto queda libre para otro trabajo.' });
+        for (var i = 1; i <= n; i++) push({ buf: i, msg: 'El controlador lee en serie el bloque a su buffer interno (' + i + '/' + n + '). La CPU está libre.' });
+        push({ msg: 'El controlador calcula la suma de verificación y confirma que no hubo errores de lectura.' });
+        for (var j = 1; j <= n; j++) push({ mem: j, addr: j, cnt: n - j, msg: 'DMA copia el byte ' + j + ' a memoria, incrementa la dirección DMA y decrementa el contador. La CPU sigue libre.' });
+        push({ cpu: s.cpu + 1, msg: 'El contador llegó a 0: el controlador provoca una interrupción. El sistema operativo solo verifica el resultado; el bloque ya está en memoria.' });
+      } else {
+        push({ cpu: s.cpu + 1, msg: 'La CPU envía el comando de lectura al controlador.' });
+        for (var i = 1; i <= n; i++) push({ buf: i, msg: 'El controlador lee bit por bit el bloque a su buffer interno (' + i + '/' + n + ').' });
+        push({ msg: 'El controlador calcula la suma de verificación y confirma que no hubo errores.' });
+        push({ cpu: s.cpu + 1, msg: 'El controlador provoca una interrupción. El sistema operativo toma el control de la CPU.' });
+        for (var j = 1; j <= n; j++) push({ mem: j, cpu: s.cpu + 1, msg: 'La CPU lee el byte ' + j + ' del registro del controlador y lo guarda en memoria. Tiempo de CPU desperdiciado.' });
+      }
+
+      idx = 0;
+      draw();
+    }
+
+    function cells(el, k, n) {
+      el.innerHTML = '';
+      for (var i = 0; i < n; i++) {
+        var d = document.createElement('div');
+        d.className = 'c' + (i < k ? ' on' : '');
+        d.textContent = i < k ? 'B' + (i + 1) : '';
+        el.appendChild(d);
+      }
+    }
+
+    function draw() {
+      var n = Number($('n').value), s = steps[idx], tot = steps[steps.length - 1].cpu;
+      cells($('buf'), s.buf, n);
+      cells($('mem'), s.mem, n);
+      var dma = $('mode').value === 'dma';
+      $('regs').innerHTML = dma ? '<span>Dirección DMA: ' + s.addr + '</span><span>Contador DMA: ' + s.cnt + '</span>' : '<span>Modo programado: la CPU copia cada byte</span>';
+      $('cpuTxt').textContent = s.cpu;
+      $('cpuBar').style.width = Math.min(100, (s.cpu / (n + 2)) * 100) + '%';
+      $('msg').textContent = s.msg;
+      var done = idx === steps.length - 1;
+      $('res').textContent = done ? ('Terminado. Tiempo de CPU usado: ' + tot + ' ciclos' + (dma ? ' (no crece con el tamaño del bloque).' : ' (crece con cada byte copiado).')) : ('Paso ' + idx + ' de ' + (steps.length - 1));
+    }
+
+    function next() {
+      if (idx < steps.length - 1) {
+        idx += 1;
+        draw();
+        return true;
+      }
+      stop();
+      return false;
+    }
+
+    function stop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+        $('run').textContent = 'Ejecutar';
+      }
+    }
+
+    $('step').onclick = function(){ stop(); next(); };
+    $('run').onclick = function(){
+      if (timer) { stop(); return; }
+      if (idx >= steps.length - 1) idx = 0;
+      $('run').textContent = 'Pausar';
+      timer = setInterval(next, 500);
+    };
+    $('reset').onclick = build;
+    $('mode').onchange = build;
+    $('n').onchange = build;
+
+    build();
+  </script>
+</body>
+</html>

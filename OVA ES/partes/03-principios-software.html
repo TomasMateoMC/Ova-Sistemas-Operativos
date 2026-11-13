@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parte 3 · Principios del software de E/S</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="01-introduccion.html">Parte 1</a>
+        <a href="02-principios-hardware.html">Parte 2</a>
+        <a href="03-principios-software.html">Parte 3</a>
+        <a href="04-simulador.html">Parte 4</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">Parte 3</div>
+    <h1>Principios del software de E/S</h1>
+
+    <h2>Organización en capas</h2>
+    <div class="layers">
+      <div class="item"><strong>Proceso del usuario:</strong> hace las llamadas de E/S, da formato a la E/S y usa spooling.</div>
+      <div class="item"><strong>Software independiente del dispositivo:</strong> nombres, protección, bloqueo, uso de buffers y asignación.</div>
+      <div class="item"><strong>Manejadores de dispositivos:</strong> cargan los registros del controlador y verifican el estado.</div>
+      <div class="item"><strong>Manejadores de interrupciones:</strong> despiertan al manejador cuando termina la E/S.</div>
+      <div class="item"><strong>Hardware:</strong> lleva a cabo la operación de E/S.</div>
+    </div>
+
+    <h2>Objetivos</h2>
+    <ul>
+      <li><strong>Independencia del dispositivo:</strong> un mismo programa debe funcionar con diferentes dispositivos sin cambiarse.</li>
+      <li><strong>Nombres uniformes:</strong> archivos y dispositivos se direccionan igual por su nombre de ruta.</li>
+      <li><strong>Manejo de errores:</strong> se resuelve lo más cerca posible del hardware.</li>
+      <li><strong>Transferencias síncronas o asíncronas:</strong> casi toda la E/S es asíncrona pero el sistema la hace parecer síncrona por bloques.</li>
+      <li><strong>Dispositivos compartidos y exclusivos:</strong> discos compartidos, impresoras de uso exclusivo.</li>
+    </ul>
+
+    <h2>Manejadores de interrupciones</h2>
+    <p>Las interrupciones deben quedar ocultas: el proceso que inicia una operación de E/S se bloquea y el procedimiento de interrupción lo desbloquea cuando termina.</p>
+
+    <h2>Manejadores de dispositivos</h2>
+    <p>Aquí está todo el código que depende del dispositivo. El manejador acepta solicitudes abstractas, las traduce a operaciones concretas, escribe los comandos en el controlador y espera la interrupción.</p>
+
+    <h2>Software independiente del dispositivo</h2>
+    <p>Da una interfaz uniforme a los manejadores, nombres y protección, bloques de tamaño uniforme, buffers, asignación de dispositivos e informe de errores. Cada nombre de dispositivo apunta a un nodo-i con número principal y secundario.</p>
+
+    <h2>Software en el espacio del usuario y spooling</h2>
+    <p>Casi todo el software de E/S está en el sistema operativo; una parte pequeña son bibliotecas ligadas a los programas. El spooling sirve para dispositivos de uso exclusivo: los procesos dejan un archivo en un directorio de spooling y un demonio imprime el contenido.</p>
+
+    <div class="box">
+      <strong>En una frase:</strong> la E/S se organiza en capas para ocultar la complejidad del hardware y ofrecer una interfaz regular y segura al usuario.</div>
+
+    <footer>
+      <a href="04-simulador.html">Siguiente: Parte 4 · Simulador →</a>
+    </footer>
+  </div>
+</body>
+</html>

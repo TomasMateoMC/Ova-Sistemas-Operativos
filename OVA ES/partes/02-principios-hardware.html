@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parte 2 · Principios del hardware de E/S</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="01-introduccion.html">Parte 1</a>
+        <a href="02-principios-hardware.html">Parte 2</a>
+        <a href="03-principios-software.html">Parte 3</a>
+        <a href="04-simulador.html">Parte 4</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">Parte 2</div>
+    <h1>Principios del hardware de E/S</h1>
+
+    <p>Aquí interesa la interfaz que el hardware presenta al software: qué comandos acepta, qué funciones realiza y qué errores puede informar.</p>
+
+    <h2>Dispositivos de bloque y de carácter</h2>
+    <div class="grid">
+      <div class="box">
+        <strong>De bloque</strong>
+        <p>Guardan la información en bloques de tamaño fijo. Cada bloque tiene su dirección y se puede leer o escribir de forma independiente. Ejemplo: los discos.</p>
+      </div>
+      <div class="box">
+        <strong>De carácter</strong>
+        <p>Transfieren un flujo de caracteres, sin bloques ni direcciones. Ejemplos: impresoras de línea, terminales y ratones.</p>
+      </div>
+    </div>
+
+    <p>Hay excepciones: los relojes no tienen bloques ni generan flujos de caracteres. El sistema de archivos solo trabaja con dispositivos de bloque abstractos; lo que depende del dispositivo lo deja el software manejador.</p>
+
+    <h2>Controladores de dispositivos</h2>
+    <p>Una unidad de E/S tiene un componente mecánico y uno electrónico, el controlador o adaptador. El sistema operativo habla con el controlador, no con el dispositivo.</p>
+    <p>Con el dispositivo, el controlador se comunica con un flujo de bits en serie: preámbulo, datos y suma de verificación. Luego convierte los bits en bytes, corrige errores y los copia a memoria.</p>
+    <p>Cada controlador tiene registros donde el sistema operativo escribe comandos y parámetros. Al terminar, provoca una interrupción.</p>
+
+    <h2>Acceso directo a memoria (DMA)</h2>
+    <p><strong>Sin DMA</strong>: el controlador lee el bloque a su buffer y provoca una interrupción; luego la CPU copia el bloque a memoria byte por byte.</p>
+    <p><strong>Con DMA</strong>: la CPU solo indica la dirección del bloque, la dirección de memoria destino y la cantidad de bytes. El controlador copia todo y provoca una sola interrupción.</p>
+    <p>El buffer interno es necesario porque los bits llegan sin esperar, y el bus puede estar ocupado.</p>
+
+    <h2>Factor de separación</h2>
+    <p>Mientras un controlador simple transfiere a memoria, el sector que pasa bajo la cabeza se pierde. Para evitarlo, al formatear se numeran los bloques saltando uno o más; el sistema operativo puede leer con numeración consecutiva a la máxima velocidad del hardware.</p>
+
+    <footer>
+      <a href="03-principios-software.html">Siguiente: Parte 3 · Principios del software de E/S →</a>
+    </footer>
+  </div>
+</body>
+</html>
