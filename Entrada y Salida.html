@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrada / Salida en un sistema operativo</title>
+<style>
+:root{--bg:#fbf8ee;--fg:#1d2a22;--mut:#5d6b62;--card:#fff;--line:#e3dcc3;--ac:#09843b;--ac2:#0099a5;--ok:#09843b;--warn:#f9b61d;--cpu:#ee7d2c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--fg:#eaf1ec;--mut:#9db0a4;--card:#17251d;--line:#2a3d32;--ac:#4cc27d;--ac2:#3fc0cc;--ok:#4cc27d;--warn:#f9b61d;--cpu:#f0924a}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(900px 320px at 50% -90px,color-mix(in srgb,var(--ac) 16%,transparent),transparent) no-repeat,var(--bg);color:var(--fg);font:17px/1.7 Helvetica,Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:36px 20px 90px}
+.eyebrow{display:inline-block;font:600 .75rem Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);background:color-mix(in srgb,var(--ac) 14%,transparent);padding:5px 12px;border-radius:99px}
+h1,h2{font-family:'Palatino Linotype',Palatino,'Book Antiqua',serif;font-weight:700}
+h3,.sans{font-family:Helvetica,Arial,sans-serif}
+h1{font-size:2.6rem;line-height:1.12;margin:.5em 0 .3em;letter-spacing:-.02em}
+h2{font-size:1.55rem;line-height:1.25;margin:2.8em 0 .6em;padding:.1em 0 .1em .7em;border-left:5px solid var(--ac2)}
+h3{font-size:1.1rem;margin:1.8em 0 .3em;color:var(--ac)}
+p{margin:.6em 0;max-width:70ch}
+.lead{color:var(--mut);font-size:1.1rem}
+nav{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:22px 0}
+nav ol{margin:.3em 0 0;padding-left:1.3em;font-family:Helvetica,Arial,sans-serif;font-size:.95rem}
+nav ul{margin:0;padding-left:1.1em;color:var(--mut)}
+nav a{color:var(--ac);text-decoration:none}nav a:hover{text-decoration:underline}
+.box{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ac);border-radius:12px;padding:14px 18px;margin:14px 0;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;font-size:.9rem;width:100%}
+td,th{border:1px solid var(--line);padding:6px 10px;text-align:left}
+th{background:var(--card)}
+.layers{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+.layers button{font:600 .95rem Helvetica,Arial,sans-serif;text-align:left;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer;transition:transform .15s,border-color .15s}
+.layers button:hover{transform:translateX(4px);border-color:var(--ac)}
+.layers button[aria-pressed=true]{border-color:var(--ac);outline:2px solid var(--ac)}
+#layerinfo{min-height:3.2em}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+/* simulador */
+.sim{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--ac2);border-radius:16px;padding:20px;box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:Helvetica,Arial,sans-serif;font-size:.9rem;margin-bottom:12px}
+.ctl button,.ctl select{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.ctl button.main{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+.ctl button:hover{filter:brightness(1.12)}
+.row{margin:10px 0;font-family:Helvetica,Arial,sans-serif;font-size:.85rem}
+.row b{display:block;margin-bottom:4px}
+.cells{display:flex;flex-wrap:wrap;gap:4px}
+.c{width:34px;height:34px;border:1px dashed var(--line);border-radius:7px;display:grid;place-items:center;font-size:.75rem;color:var(--mut);transition:background .2s}
+.c.on{background:var(--ok);color:#fff;border:1px solid var(--ok);font-weight:600}
+.regs{display:flex;gap:18px;flex-wrap:wrap}
+.regs span{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 10px}
+.bar{height:18px;background:var(--bg);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--warn),var(--cpu));width:0;transition:width .25s}
+#msg{margin-top:12px;padding:10px 12px;border-left:4px solid var(--warn);background:var(--bg);font-family:Helvetica,Arial,sans-serif;font-size:.9rem;min-height:3em}
+#res{font-family:Helvetica,Arial,sans-serif;font-size:.9rem;margin-top:10px;color:var(--mut)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ctl button.main,:root:not([data-theme="light"]) .c.on{color:#0f1a14}}
+footer{margin-top:60px;padding-top:14px;border-top:1px solid var(--line);font-size:.8rem;color:var(--mut)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="eyebrow">Universidad Simón Bolívar · Sistemas operativos · Capítulo 5</div>
+<h1>Entrada / Salida (E/S) en un sistema operativo</h1>
+<p class="lead">Cómo el sistema operativo (S. O.) controla los dispositivos de la computadora, desde el cable hasta el programa del usuario,.</p>
+
+
+<h2 id="intro">1. Introducción</h2>
+<p>Una de las funciones principales del S. O. es el <em>control de todos los dispositivos de E/S</em> (teclado, disco, impresora, red, etc.). Para lograrlo debe:</p>
+<ul>
+<li>Enviar comandos a los dispositivos.</li>
+<li>Detectar las interrupciones.</li>
+<li>Controlar los errores.</li>
+<li>Ofrecer una interfaz sencilla y, de preferencia, igual para todos los dispositivos (<em>independencia del dispositivo</em>).</li>
+</ul>
+<p>El código de E/S es una parte importante del S. O., y usar mal los dispositivos suele causar ineficiencias que bajan el rendimiento de todo el sistema.</p>
+
+<h2 id="hw">2. Principios del hardware de E/S</h2>
+<p>Aquí interesa la interfaz que el hardware presenta al software: qué comandos acepta, qué funciones realiza y qué errores puede informar.</p>
+
+<h3 id="disp">Dispositivos de bloque y de carácter</h3>
+<div class="grid">
+<div class="box"><strong class="sans">De bloque</strong>
+<p>Guardan la información en bloques de tamaño fijo (comúnmente de 128 a 1.024 bytes). Cada bloque tiene su dirección y se puede leer o escribir de forma independiente. Ejemplo: los discos.</p></div>
+<div class="box"><strong class="sans">De carácter</strong>
+<p>Transfieren un flujo de caracteres, sin bloques, sin direcciones y sin operación de búsqueda. Ejemplos: impresoras de línea, terminales, interfaces de red, ratones.</p></div>
+</div>
+<p>Hay excepciones: los relojes no tienen bloques con dirección ni generan flujos de caracteres. El sistema de archivos solo trabaja con <em>dispositivos de bloque abstractos</em>; lo que depende del dispositivo lo deja al software manejador.</p>
+
+<h3 id="ctrl">Controladores de dispositivos</h3>
+<p>Una unidad de E/S tiene un <strong>componente mecánico</strong> y uno electrónico, el controlador o adaptador. El S. O. habla con el controlador, no con el dispositivo.</p>
+<p>Con el dispositivo, el controlador se comunica con un flujo de bits en serie: <strong>preámbulo</strong> (cilindro y sector), datos y suma de verificación. Luego convierte los bits en un bloque de bytes, corrige errores y lo copia a memoria.</p>
+<p>Cada controlador tiene <strong>registros</strong> donde el S. O. escribe comandos y parámetros (mapeados a memoria o en un espacio de E/S propio). Al terminar, el controlador provoca una <strong>interrupción</strong>.</p>
+
+<h3 id="dma">Acceso directo a memoria (DMA)</h3>
+<p><strong>Sin DMA</strong>: el controlador lee el bloque a su buffer y provoca una interrupción; después la CPU copia el bloque a memoria byte por byte, <em>desperdiciando tiempo</em>.</p>
+<p><strong>Con DMA</strong>: la CPU solo indica la dirección del bloque en disco, la dirección de memoria destino y cuántos bytes transferir. El controlador copia todo y provoca <em>una sola</em> interrupción cuando el contador llega a cero.</p>
+<p>El buffer interno es necesario porque los bits llegan del disco sin esperar, y el bus podría estar ocupado.</p>
+
+<h3 id="sep">Factor de separación</h3>
+<p>Mientras un controlador simple transfiere a memoria, el sector que pasa bajo la cabeza se pierde. Para evitarlo, al formatear se numeran los bloques saltando uno o más (<em>separación simple o doble</em>), y el S. O. puede leer con numeración consecutiva a la máxima velocidad del hardware.</p>
+
+<h2 id="sw">3. Principios del software de E/S</h2>
+<h3 id="capas">Organización en capas</h3>
+<p>Las capas inferiores ocultan las peculiaridades del hardware; las superiores ofrecen una interfaz limpia y regular al usuario. Toca una capa para ver su función:</p>
+<div class="layers" id="layers"></div>
+<div class="box" id="layerinfo" aria-live="polite">Elige una capa.</div>
+
+<h3 id="obj">Objetivos</h3>
+<ul>
+<li><strong>Independencia del dispositivo</strong>: un mismo programa debe funcionar con archivos en distintos dispositivos sin modificarse.</li>
+<li><strong>Nombres uniformes</strong>: archivos y dispositivos se direccionan igual, por el nombre de su ruta.</li>
+<li><strong>Manejo de errores</strong> lo más cerca posible del hardware; solo se avisa a niveles superiores si los inferiores no pueden resolverlo.</li>
+<li><strong>Transferencias síncronas o asíncronas</strong>: casi toda la E/S es asíncrona (la CPU inicia y hace otras cosas hasta la interrupción), pero programar es más fácil con E/S síncrona, así que el S. O. hace que parezca por bloques.</li>
+<li><strong>Dispositivos compartidos</strong> (discos) y <strong>de uso exclusivo</strong> (impresoras).</li>
+</ul>
+
+<h3 id="int">Manejadores de interrupciones</h3>
+<p>Las interrupciones deben quedar ocultas: el proceso que inicia una operación de E/S se bloquea hasta que termina y llega la interrupción, y el procedimiento de interrupción lo desbloquea.</p>
+
+<h3 id="drv">Manejadores de dispositivos</h3>
+<p>Aquí está todo el código que depende del dispositivo. El manejador acepta solicitudes abstractas, las traduce a operaciones concretas (por ejemplo, ubicar el bloque y mover el brazo del disco), escribe los comandos en el controlador, espera la interrupción, revisa errores y atiende la siguiente solicitud de su cola.</p>
+
+<h3 id="indep">Software independiente del dispositivo</h3>
+<p>Da una interfaz uniforme a los manejadores, nombres y protección, bloques de tamaño uniforme, buffers, asignación de dispositivos e informe de errores. Cada nombre de dispositivo apunta a un <em>nodo-i</em> con el <em>número principal</em> (qué manejador usar) y el <em>secundario</em> (qué unidad).</p>
+
+<h3 id="user">Software en el espacio del usuario y spooling</h3>
+<p>Casi todo el software de E/S está en el S. O.; una parte pequeña son bibliotecas ligadas a los programas. El <strong>spooling</strong> sirve para dispositivos de uso exclusivo: los procesos dejan el archivo en un <em>directorio de spooling</em> y un proceso especial (demonio), el único con acceso a la impresora, lo imprime. Así nadie retiene la impresora mucho tiempo. También se usa para transferir archivos entre equipos, como en el correo.</p>
+
+<h2 id="simulador">4. Simulador: leer un bloque de disco</h2>
+<p>Compara cómo se lee un bloque con y sin DMA. Observa el buffer del controlador, la memoria principal y cuánto tiempo de CPU se ocupa en cada caso. La barra compara contra lo que gastaría la CPU sin DMA; mide el uso de la CPU, no la velocidad total de la lectura.</p>
+<div class="sim">
+<div class="ctl">
+<label>Modo <select id="mode"><option value="nodma">Sin DMA</option><option value="dma">Con DMA</option></select></label>
+<label>Bytes del bloque <select id="n"><option>4</option><option selected>8</option><option>12</option><option>16</option></select></label>
+<button id="step" class="main">Paso</button><button id="run">Ejecutar</button><button id="reset">Reiniciar</button>
+</div>
+<div class="row"><b>Buffer del controlador</b><div class="cells" id="buf"></div></div>
+<div class="row"><b>Memoria principal (destino)</b><div class="cells" id="mem"></div></div>
+<div class="row regs" id="regs"></div>
+<div class="row"><b>CPU ocupada: <span id="cpuTxt">0</span> ciclos</b><div class="bar"><i id="cpuBar"></i></div></div>
+<div id="msg" aria-live="polite">Pulsa «Paso» o «Ejecutar» para comenzar.</div>
+<div id="res"></div>
+</div>
+<footer>Colores y tipografías según el Manual de Imagen e Identidad Corporativa de la Universidad Simón Bolívar (2018): verde institucional #09843B, Palatino para títulos y Helvetica/Arial para textos.</footer>
+</div>
+
+<script>
+// Capas
+var L=[["Proceso del usuario","Hace las llamadas de E/S, da formato a la E/S y usa spooling."],["Software independiente del dispositivo","Nombres, protección, bloqueo, uso de buffers y asignación."],["Manejadores de dispositivos","Cargan los registros del controlador y verifican el estado."],["Manejadores de interrupciones","Despiertan al manejador cuando termina la E/S."],["Hardware","Lleva a cabo la operación de E/S."]];
+var box=document.getElementById('layers'),info=document.getElementById('layerinfo');
+L.forEach(function(l,i){var b=document.createElement('button');b.textContent=l[0];b.setAttribute('aria-pressed','false');
+b.onclick=function(){[].forEach.call(box.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true');info.textContent=l[0]+': '+l[1]+(i===0?' La solicitud de E/S baja por las capas y la réplica sube.':'')};box.appendChild(b)});
+
+// Simulador
+var $=function(i){return document.getElementById(i)};
+var steps=[],idx=0,timer=null;
+function build(){
+ stop();var n=+$('n').value,dma=$('mode').value==='dma';steps=[];
+ var s={buf:0,mem:0,cnt:n,addr:0,cpu:0,msg:'Estado inicial. La CPU aún no ha pedido nada.'};
+ function push(o){s=Object.assign({},s,o);steps.push(s)}
+ steps.push(s);
+ if(dma){
+  push({cpu:s.cpu+1,msg:'La CPU escribe en el controlador la dirección del bloque en disco (1 ciclo).'});
+  push({cpu:s.cpu+1,msg:'La CPU escribe la dirección de memoria donde debe ir el bloque (1 ciclo más).'});
+  push({cpu:s.cpu+1,msg:'La CPU escribe el número de bytes por transferir ('+n+'). Con esto queda libre para otro trabajo.'});
+  for(var i=1;i<=n;i++)push({buf:i,msg:'El controlador lee en serie el bloque a su buffer interno ('+i+'/'+n+'). La CPU está libre.'});
+  push({msg:'El controlador calcula la suma de verificación y confirma que no hubo errores de lectura.'});
+  for(var j=1;j<=n;j++)push({mem:j,addr:j,cnt:n-j,msg:'DMA copia el byte '+j+' a memoria, incrementa la dirección DMA y decrementa el contador. La CPU sigue libre.'});
+  push({cpu:s.cpu+1,msg:'El contador llegó a 0: el controlador provoca UNA interrupción. El S. O. solo verifica el resultado; el bloque ya está en memoria.'});
+ }else{
+  push({cpu:s.cpu+1,msg:'La CPU envía el comando de lectura al controlador.'});
+  for(var i=1;i<=n;i++)push({buf:i,msg:'El controlador lee bit por bit el bloque a su buffer interno ('+i+'/'+n+').'});
+  push({msg:'El controlador calcula la suma de verificación y confirma que no hubo errores.'});
+  push({cpu:s.cpu+1,msg:'El controlador provoca una interrupción. El S. O. toma el control de la CPU.'});
+  for(var j=1;j<=n;j++)push({mem:j,cpu:s.cpu+1,msg:'La CPU lee el byte '+j+' del registro del controlador y lo guarda en memoria. Tiempo de CPU desperdiciado.'});
+ }
+ idx=0;draw();
+}
+function cells(el,k,n){el.innerHTML='';for(var i=0;i<n;i++){var d=document.createElement('div');d.className='c'+(i<k?' on':'');d.textContent=i<k?'B'+(i+1):'';el.appendChild(d)}}
+function draw(){
+ var n=+$('n').value,s=steps[idx],tot=steps[steps.length-1].cpu;
+ cells($('buf'),s.buf,n);cells($('mem'),s.mem,n);
+ var dma=$('mode').value==='dma';
+ $('regs').innerHTML=dma?'<span>Dirección DMA: '+s.addr+'</span><span>Contador DMA: '+s.cnt+'</span>':'<span>Modo programado: la CPU copia cada byte</span>';
+ $('cpuTxt').textContent=s.cpu;$('cpuBar').style.width=Math.min(100,s.cpu/(n+2)*100)+'%';
+ $('msg').textContent=s.msg;
+ var done=idx===steps.length-1;
+ $('res').textContent=done?('Terminado. Tiempo de CPU usado: '+tot+' ciclos'+(dma?' (no crece con el tamaño del bloque).':' (crece con cada byte copiado).')):'Paso '+idx+' de '+(steps.length-1);
+}
+function next(){if(idx<steps.length-1){idx++;draw();return true}stop();return false}
+function stop(){if(timer){clearInterval(timer);timer=null;$('run').textContent='Ejecutar'}}
+$('step').onclick=function(){stop();next()};
+$('run').onclick=function(){if(timer){stop();return}if(idx>=steps.length-1)idx=0;$('run').textContent='Pausar';timer=setInterval(next,500)};
+$('reset').onclick=build;$('mode').onchange=build;$('n').onchange=build;
+build();
+</script>
+</body>
+</html>
