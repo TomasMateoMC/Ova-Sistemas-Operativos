@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entrada / Salida en un sistema operativo</title>
-  <link rel="stylesheet" href="partes/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body class="sim-page">
   <header class="hero">
@@ -18,6 +18,8 @@
           <a href="#hardware">Hardware de E/S</a>
           <a href="#software">Software de E/S</a>
           <a href="#simulador">Simulador</a>
+          <a href="#glosario">Glosario</a>
+          <a href="#referencias">Referencias</a>
         </div>
       </nav>
     </div>
@@ -138,8 +140,76 @@
       </div>
     </section>
 
-    <footer>Colores y tipografías según el Manual de Imagen e Identidad Corporativa de la Universidad Simón Bolívar (2018).</footer>
+    <section id="glosario">
+      <h2>5. Glosario</h2>
+      <dl class="glossary">
+        <div>
+          <dt>Buffer</dt>
+          <dd>Área temporal de memoria donde se guardan datos mientras se transfieren entre un dispositivo y la computadora.</dd>
+        </div>
+        <div>
+          <dt>Controlador de dispositivo</dt>
+          <dd>Componente electrónico que recibe comandos del sistema operativo y controla la comunicación con un dispositivo.</dd>
+        </div>
+        <div>
+          <dt>DMA (acceso directo a memoria)</dt>
+          <dd>Mecanismo que permite transferir datos entre un dispositivo y la memoria sin que la CPU copie cada byte.</dd>
+        </div>
+        <div>
+          <dt>Dispositivo de bloque</dt>
+          <dd>Dispositivo que organiza la información en bloques direccionables, como un disco.</dd>
+        </div>
+        <div>
+          <dt>Dispositivo de carácter</dt>
+          <dd>Dispositivo que entrega o recibe un flujo de caracteres, sin direccionar bloques individuales.</dd>
+        </div>
+        <div>
+          <dt>Factor de separación</dt>
+          <dd>Espaciado entre sectores consecutivos para dar tiempo al sistema a procesar un sector antes de que llegue el siguiente.</dd>
+        </div>
+        <div>
+          <dt>Interrupción</dt>
+          <dd>Señal que notifica a la CPU que un dispositivo requiere atención o que una operación terminó.</dd>
+        </div>
+        <div>
+          <dt>Manejador de dispositivo</dt>
+          <dd>Software específico que traduce solicitudes del sistema operativo en comandos para un dispositivo.</dd>
+        </div>
+        <div>
+          <dt>Spooling</dt>
+          <dd>Colocación de trabajos en una cola o almacenamiento temporal para que un proceso los envíe después a un dispositivo de uso exclusivo.</dd>
+        </div>
+        <div>
+          <dt>Transferencia asíncrona</dt>
+          <dd>Operación de E/S que puede continuar mientras la CPU realiza otras tareas y que avisa cuando finaliza.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="referencias">
+      <h2>6. Referencias bibliográficas</h2>
+      <ol class="references">
+        <li>La Red Martínez, Luis. <cite>Sistemas Operativos</cite>.</li>
+        <li>Tanenbaum, Andrew S., y Herbert Bos. <cite>Modern Operating Systems</cite>. 4.ª ed., Pearson, 2015.</li>
+        <li>Silberschatz, Abraham, Peter B. Galvin y Greg Gagne. <cite>Operating System Concepts</cite>. 10.ª ed., Wiley, 2018.</li>
+      </ol>
+    </section>
+
   </main>
+
+  <footer class="project-footer">
+    <div class="footer-inner">
+      <img class="footer-logo" src="logosist-removebg-preview.png" alt="Logo de Ingeniería de Sistemas">
+      <div class="footer-copy">
+        <p class="footer-eyebrow">Universidad Simón Bolívar</p>
+        <h2>Facultad de Ingeniería</h2>
+        <p class="footer-program">Ingeniería de Sistemas</p>
+        <p>Asignatura de Sistemas Operativos</p>
+        <p>Docente: Ingeniero Álvaro Salamanca Landínez</p>
+        <p class="footer-developer">Desarrollado por <strong>Tomás Mateo Monsalve Caballero</strong></p>
+      </div>
+    </div>
+  </footer>
 
   <script>
     var $ = function(id){ return document.getElementById(id); };
