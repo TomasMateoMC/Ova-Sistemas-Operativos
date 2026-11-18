@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,8 +19,13 @@
         <a href="#hardware">Hardware</a>
         <a href="#software">Software</a>
         <a href="#simulador">Simulador</a>
+        <a href="#video">Video</a>
         <a href="#glosario">Glosario</a>
         <a href="#referencias">Referencias</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar a modo claro" aria-pressed="false">
+          <span id="theme-icon" aria-hidden="true">☀</span>
+          <span id="theme-label">Claro</span>
+        </button>
       </div>
     </div>
   </nav>
@@ -148,8 +153,24 @@
       </div>
     </section>
 
+    <section id="video">
+      <h2>5. Video complementario: gestión de entrada y salida</h2>
+      <p>Recurso audiovisual sobre gestión de E/S, DMA, buffers y RAID.</p>
+      <div class="video-frame" id="video-player">
+        <a class="video-fallback" href="https://www.youtube.com/watch?v=U8V8TTavEXs" target="_blank" rel="noopener noreferrer">
+          <img src="https://i.ytimg.com/vi/U8V8TTavEXs/hqdefault.jpg" alt="" loading="lazy">
+          <span class="video-fallback-content">
+            <span class="video-play-icon" aria-hidden="true">▶</span>
+            <strong>Reproducir video en YouTube</strong>
+            <span class="video-fallback-note">Al abrir esta página como archivo local, el reproductor incrustado no está disponible. Pulsa aquí para ver el video.</span>
+          </span>
+        </a>
+      </div>
+      <p class="video-source">Si no puedes reproducirlo aquí, míralo en <a href="https://www.youtube.com/watch?v=U8V8TTavEXs" target="_blank" rel="noopener noreferrer">YouTube</a>.</p>
+    </section>
+
     <section id="glosario">
-      <h2>5. Glosario</h2>
+      <h2>6. Glosario</h2>
       <dl class="glossary">
         <div>
           <dt>Buffer</dt>
@@ -195,11 +216,12 @@
     </section>
 
     <section id="referencias">
-      <h2>6. Referencias bibliográficas</h2>
+      <h2>7. Referencias bibliográficas</h2>
       <ol class="references">
         <li>La Red Martínez, Luis. <cite>Sistemas Operativos</cite>.</li>
         <li>Tanenbaum, Andrew S., y Herbert Bos. <cite>Modern Operating Systems</cite>. 4.ª ed., Pearson, 2015.</li>
         <li>Silberschatz, Abraham, Peter B. Galvin y Greg Gagne. <cite>Operating System Concepts</cite>. 10.ª ed., Wiley, 2018.</li>
+        <li>Bottarlini, G. (s. f.). <cite>Unidad 9 – Gestión de Entrada y Salida | DMA, Buffers y RAID explicados fácil</cite> [Video]. YouTube. <a href="https://www.youtube.com/watch?v=U8V8TTavEXs" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=U8V8TTavEXs</a></li>
       </ol>
     </section>
 
@@ -222,6 +244,31 @@
   <script>
     var $ = function(id){ return document.getElementById(id); };
     var steps = [], idx = 0, timer = null;
+
+    function setTheme(theme) {
+      var isLight = theme === 'light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+      $('theme-toggle').setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      $('theme-toggle').setAttribute('aria-label', isLight ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro');
+      $('theme-icon').textContent = isLight ? '☾' : '☀';
+      $('theme-label').textContent = isLight ? 'Oscuro' : 'Claro';
+    }
+
+    $('theme-toggle').onclick = function() {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    };
+
+    if (window.location.protocol !== 'file:') {
+      var video = document.createElement('iframe');
+      video.src = 'https://www.youtube-nocookie.com/embed/U8V8TTavEXs?rel=0';
+      video.title = 'Unidad 9 – Gestión de Entrada y Salida | DMA, Buffers y RAID explicados fácil';
+      video.loading = 'lazy';
+      video.referrerPolicy = 'strict-origin-when-cross-origin';
+      video.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      video.allowFullscreen = true;
+      $('video-player').innerHTML = '';
+      $('video-player').appendChild(video);
+    }
 
     function build() {
       stop();
