@@ -25,13 +25,107 @@ body.sim-page {
   background-color: var(--bg);
 }
 
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(8, 205, 229, .3);
+  background: rgba(6, 16, 34, .94);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
+  backdrop-filter: blur(14px);
+}
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 1150px;
+  min-height: 62px;
+  margin: 0 auto;
+  padding: 7px 20px;
+}
+.site-brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.university-logo {
+  display: block;
+  width: 144px;
+  height: 40px;
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: #f7fbff;
+  object-fit: contain;
+}
+.brand-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(8, 205, 229, .35);
+}
+.career-logo {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(34, 230, 181, .28));
+}
+.top-nav {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+.top-nav a {
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #b6c8de;
+  font-size: .79rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.top-nav a:hover,
+.top-nav a:focus-visible {
+  border-color: rgba(8, 205, 229, .35);
+  background: rgba(8, 205, 229, .12);
+  color: #72edff;
+}
+.top-nav a.active {
+  background: var(--ac2);
+  color: #061827;
+}
+
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  scroll-margin-top: 62px;
   color: #f3f9ff;
   background: linear-gradient(112deg, #071322 0%, #0b1c31 58%, #0a2939 100%);
   border-bottom: 1px solid rgba(8, 205, 229, .55);
   box-shadow: 0 12px 36px rgba(0, 0, 0, .22);
 }
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: max(24px, calc((100vw - 1050px) / 2 + 24px));
+  width: clamp(180px, 22vw, 290px);
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  background: url("logosist-removebg-preview.png") center / contain no-repeat;
+  content: "";
+  opacity: .14;
+  pointer-events: none;
+}
 .hero-inner {
+  position: relative;
+  z-index: 1;
   max-width: 1050px;
   margin: 0 auto;
   padding: 48px 24px 42px;
@@ -117,6 +211,7 @@ h2 {
 }
 
 .index-wrap section {
+  scroll-margin-top: 82px;
   padding: 4px 0 22px;
   border-bottom: 1px solid var(--line);
 }
@@ -413,6 +508,30 @@ nav a {
 }
 
 @media (max-width: 560px) {
+  .hero { scroll-margin-top: 118px; }
+  .hero::after {
+    right: 12px;
+    width: 150px;
+    opacity: .07;
+  }
+  .topbar-inner {
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 7px 12px;
+  }
+  .site-brand { gap: 8px; }
+  .university-logo { width: 120px; height: 34px; }
+  .career-logo { width: 34px; height: 34px; }
+  .top-nav {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    scrollbar-width: none;
+  }
+  .top-nav::-webkit-scrollbar { display: none; }
+  .top-nav a { padding: 7px 9px; }
+  .index-wrap section { scroll-margin-top: 118px; }
   .hero-inner { padding: 32px 18px; }
   .index-wrap { padding-right: 18px; padding-left: 18px; }
   h1 { font-size: 2.1rem; }
